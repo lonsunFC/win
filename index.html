@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link href="./css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+    <script src="art-template.js"></script>
+    <style>
+        .win-mask {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .win-box {
+            position: absolute;
+            border: 1px solid #0f0f0f;
+            background: #fff;
+        }
+
+        .win-box.on {
+            left: 50%;
+            top: 50%;
+            -webkit-transform: translate(-50%, -50%);
+            -moz-transform: translate(-50%, -50%);
+            -ms-transform: translate(-50%, -50%);
+            -o-transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%);
+        }
+
+        .win-title {
+            height: 35px;
+            line-height: 35px;
+            border-bottom: 1px solid #0f0f0f;
+        }
+
+        .win-box .base-box {
+            height: calc(100% - 35px);;
+        }
+
+        .title-name {
+            /*flex-grow: 1;*/
+            cursor: move;
+            height: 100%;
+        }
+
+        .title-btn {
+            display: flex;
+            justify-content: flex-end;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .max-btn {
+            margin-right: 8px;
+        }
+
+        .max-btn .fa-arrows-alt {
+            display: none;
+        }
+
+        .max-btn.on .fa-arrows-alt {
+            display: inline-block;
+        }
+
+        .max-btn.on .fa-expand {
+            display: none;
+        }
+
+        .win-btn {
+            text-align: right;
+            padding: 3px 5px 0px 0;
+            border-top: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+<div id="app"></div>
+
+<script id="main" type="text/html">
+    <div class="base-box row">
+        {{if src}}
+        <iframe src="{{src}}" frameborder="0" scrolling="no" width="100%" height="100%"></iframe>
+        {{else}}
+        {{@content}}
+        {{/if}}
+    </div>
+</script>
+
+<script id="win" type="text/html">
+    <div class="win-mask">
+        <div class="win-box on container">
+            <div class="win-title clearfix row">
+                <div class="title-name col-md-9">{{title}}</div>
+                <div class="title-btn col-md-3">
+                    <div class="max-btn">
+                        <span class="fa fa-expand"></span>
+                        <span class="fa fa-arrows-alt"></span>
+                    </div>
+                    <div class="close-btn">
+                        <i class="fa fa-times"></i>
+                    </div>
+                </div>
+            </div>
+            {{include 'main' data}}
+            {{if button}}
+            <div class="win-btn clearfix row">
+                {{each button}}
+                <button class="btn btn-default">{{$value.name}}</button>
+                {{/each}}
+            </div>
+            {{/if}}
+        </div>
+    </div>
+</script>
+<script>
+    var _list = [];
+
+    class Base {
+        constructor(options) {
+            let defaults = {
+                id: `item-${Date.now()}`,
+                className: '.base-box',
+                width: '500px',
+                height: '200px',
+                content: '',
+                insert: 'body',
+                src: ''
+            };
+            this.settings = $.extend({}, defaults, options);
+        }
+
+        init() {
+            this.render();
+            this.eventFn();
+            return this;
+        }
+
+        temp() {
+            let {
+                content,
+                src,
+            } = this.settings;
+
+            let html = template("main", {
+                src,
+                content,
+            });
+            return html;
+        }
+
+        render() {
+            let html = this.temp(),
+                {
+                    id,
+                    className,
+                    insert,
+                    width,
+                    height,
+                } = this.settings;
+
+            $(insert).append(html);
+            $(className).last().attr('id', id).css({
+                width,
+                height
+            });
+            // $(insert).children().last();
+            this.$dom = $(`#${id}`);
+            // _list.push(id);
+            return this;
+        }
+
+        delete() {
+            return this.$dom.remove();
+        }
+
+        deleteAll() {
+            return $(this.settings.className).remove();
+        }
+
+        changeSize(obj) {
+            return this.$dom.css(obj);
+        }
+
+        eventFn() {
+
+        }
+    }
+
+    class win extends Base {
+        constructor(options) {
+            super(options);
+            let defaults = {
+                title: '',
+                insert: 'body',
+                className: '.win-box',
+                isWin: true,
+                left: '50%',
+                top: '50%',
+                button: []
+            };
+
+            this.settings = $.extend({}, this.settings, defaults, options);
+
+        }
+
+        setContH() {
+            let {
+                button,
+            } = this.settings;
+
+            if (button.length) {
+                $('.base-box').css({
+                    height: 'calc(100% - 76px)'
+                });
+            }
+        }
+
+        temp() {
+            let {
+                title,
+                content,
+                src,
+                button
+            } = this.settings;
+
+            let html = template("win", {
+                title,
+                src,
+                content,
+                button,
+            });
+
+            return html;
+        }
+
+        close(id) {
+            let that = this;
+            $("body").on('click', '#' + id + ' .close-btn', function () {
+                console.log(that.$dom);
+                that.$dom.parent().remove();
+                that.delete();
+                that.settings.callback && that.settings.callback.call(that);
+            })
+        }
+
+        drag(id) {
+            let that = this;
+            $("body").on('mousedown', '#' + id + ' .title-name', function (e) {
+                let dragOffset = that.$dom.offset(),
+                    diffX = e.pageX - dragOffset.left,
+                    diffY = e.pageY - dragOffset.top;
+                $(document).mousemove(function (e) {
+                    that.$dom.removeClass('on');
+                    var x = e.pageX - diffX;
+                    var y = e.pageY - diffY;
+                    if (x < 0) {
+                        x = 0;
+                    } else if (x > $(document).width() - that.$dom.outerWidth(true)) {
+                        x = $(document).width() - that.$dom.outerWidth(true);
+                    }
+                    if (y < 0) {
+                        y = 0;
+                    } else if (y > $(document).height() - that.$dom.outerHeight(true)) {
+                        y = $(document).height() - that.$dom.outerHeight(true);
+                    }
+                    that.$dom.css({
+                        'left': x + 'px',
+                        'top': y + 'px'
+                    });
+                });
+
+                $(this).mouseup(function () {
+                    $(document).off('mousemove');
+                });
+            });
+        }
+
+        max(id) {
+            let that = this;
+            $("body").on('click', '#' + id + ' .max-btn', function () {
+                let hasCls = $(this).hasClass('on'),
+                    width = null,
+                    height = null,
+                    top = null,
+                    left = null;
+                if (hasCls) {
+                    $(this).removeClass('on');
+                    that.$dom.addClass('on');
+                    width = that.settings.width;
+                    height = that.settings.height;
+                    top = that.settings.top;
+                    left = that.settings.left;
+                } else {
+                    $(this).addClass('on');
+                    that.$dom.removeClass('on');
+                    width = $(window).width() + 'px';
+                    height = $(window).height() + 'px';
+                    top = 0;
+                    left = 0;
+                }
+                that.changeSize({
+                    width,
+                    height,
+                    top,
+                    left
+                })
+            })
+        }
+
+        btnFn(id) {
+            let that = this,
+                {button} = that.settings;
+            $("body").on('click', '#' + id + ' .win-btn>button', function () {
+                let index = $(this).index(),
+                    callback = button[index].callback,
+                    returnVal = null;
+
+                returnVal = callback();
+
+                if (returnVal !== false) {
+                    that.changeStatus('close');
+                }
+            })
+        }
+
+        eventFn() {
+            let that = this,
+                {
+                    id
+                } = that.settings;
+            that.setContH();
+            that.drag(id);
+            that.close(id);
+            that.max(id);
+            that.btnFn(id);
+        }
+
+        changeStatus(name) {
+            let that = this,
+                {
+                    id
+                } = that.settings,
+                maxBtn = $('#' + id + ' .max-btn'),
+                closeBtn = $('#' + id + ' .close-btn');
+            switch (name) {
+                case 'close':
+                    closeBtn.trigger('click');
+                    break
+                case 'max':
+                    maxBtn.trigger('click');
+                    break
+            }
+
+        }
+    }
+
+
+    var base = new Base({
+        content: '231231'
+    });
+
+    var base2 = new Base({
+        src: './index2.html',
+        insert: '#app'
+    });
+
+    // base.init();
+    // base2.init();
+
+    var base3 = new win({
+        src: './index2.html',
+        width: '500px',
+        height: '400px',
+        id: 'myWin',
+        title: '窗口',
+        button: [
+            {
+                name: '确定',
+                callback: function () {
+                    alert('确定');
+                    return false;
+                }
+            },
+            {
+                name: '取消',
+                callback: function () {
+                    alert('取消')
+                }
+            }
+        ],
+        callback() {
+            alert(88)
+        }
+    });
+    base3.init();
+</script>
+</body>
+</html>
