@@ -134,6 +134,7 @@
                 src: ''
             };
             this.settings = $.extend({}, defaults, options);
+
         }
 
         init() {
@@ -148,11 +149,10 @@
                 src,
             } = this.settings;
 
-            let html = template("main", {
+            return template("main", {
                 src,
                 content,
             });
-            return html;
         }
 
         render() {
@@ -207,7 +207,7 @@
             };
 
             this.settings = $.extend({}, this.settings, defaults, options);
-
+            this.init();
         }
 
         setContH() {
@@ -230,24 +230,32 @@
                 button
             } = this.settings;
 
-            let html = template("win", {
+            return template("win", {
                 title,
                 src,
                 content,
                 button,
             });
-
-            return html;
         }
 
-        close(id) {
+        close(data) {
             let that = this;
-            $("body").on('click', '#' + id + ' .close-btn', function () {
-                console.log(that.$dom);
-                that.$dom.parent().remove();
-                that.delete();
-                that.settings.callback && that.settings.callback.call(that);
+            $("body").on('click', '.close-btn', function () {
+                let {
+                        id
+                    } = that.settings,
+                    $id = $(this).closest('.win-box').attr('id');
+                if (id === $id) {
+                    that._close(data);
+                }
             })
+        }
+
+        _close(data){
+            let that = this;
+            that.$dom.parent().remove();
+            that.delete();
+            that.settings.callback && that.settings.callback.call(that, data);
         }
 
         drag(id) {
@@ -337,7 +345,7 @@
                 } = that.settings;
             that.setContH();
             that.drag(id);
-            that.close(id);
+            that.close();
             that.max(id);
             that.btnFn(id);
         }
@@ -395,11 +403,10 @@
                 }
             }
         ],
-        callback() {
-            alert(88)
+        callback(data) {
+            console.log(data);
         }
     });
-    base3.init();
 </script>
 </body>
 </html>
