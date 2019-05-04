@@ -1,0 +1,115 @@
+.win-mask {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.win-box {
+    width: 300px;
+    height: 190px;
+    position: absolute;
+    border: 1px solid #c4c0c0;
+    background: #fff;
+    border-radius: 2px;
+    box-shadow: 1px 1px 20px rgba(0,0,0,.3);
+}
+
+.win-box .clearfix:after {
+    visibility: hidden;
+    display: block;
+    font-size: 0;
+    content: " ";
+    clear: both;
+    height: 0;
+}
+
+.win-box .hide {
+    display: none;
+}
+
+.win-box.on {
+    left: 50%;
+    top: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    -moz-transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    -o-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
+
+.win-box > .win-title {
+    padding: 0 5px;
+    height: 35px;
+    line-height: 35px;
+    border-bottom: 1px solid #ddd;
+}
+
+.win-box .base-box {
+    height: calc(100% - 35px);;
+}
+
+.win-box .title-name {
+    float: left;
+    width: 80%;
+    height: 100%;
+    cursor: move;
+    font-size: 14px;
+}
+
+.win-box .title-btn {
+    float: right;
+    height: 100%;
+    cursor: pointer;
+}
+
+.win-box .win-btn {
+    float: left;
+    width: 16px;
+    height: 16px;
+    margin-top: 10px;
+    background: url(../images/icon.png) no-repeat;
+}
+
+.win-box .max-btn {
+    margin-right: 8px;
+    background-position: -32px -40px;
+}
+
+.win-box .max-btn.on {
+    background-position: -65px -40px;
+}
+
+.win-box .close-btn {
+    background-position: 1px -40px;
+}
+
+.win-box .win-cont {
+    padding: 0 5px;
+}
+
+.win-box .win-btn-cont {
+    text-align: right;
+    padding: 5px;
+    border-top: 1px solid #ddd;
+}
+
+.win-box .btn-close {
+    display: inline-block;
+    min-width: 58px;
+    margin-left: 8px;
+    padding: 4px 0px;
+    border: 1px solid #dedede;
+    border-radius: 3px;
+    font-size: 12px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.win-box .default {
+    border-color: #28c;
+    background-color: #28c;
+    color: #fff;
+}
